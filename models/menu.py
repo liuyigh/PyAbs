@@ -5,16 +5,16 @@
 ## Customize your APP title, subtitle and menus here
 #########################################################################
 
-response.logo = A(B('web',SPAN(2),'py'),XML('&trade;&nbsp;'),
-                  _class="navbar-brand",_href="http://www.web2py.com/",
-                  _id="web2py-logo")
+response.logo = A(B('Py',SPAN('Abs')),XML('&trade;&nbsp;'),
+                  _class="navbar-brand",_href="http://pyabs.com/",
+                  _id="pyabs-logo")
 response.title = request.application.replace('_',' ').title()
-response.subtitle = ''
+response.subtitle = 'Antibody Management for Flow Cytometry (FACS)'
 
 ## read more at http://dev.w3.org/html5/markup/meta.name.html
-response.meta.author = 'Your Name <you@example.com>'
-response.meta.description = 'a cool new app'
-response.meta.keywords = 'web2py, python, framework'
+response.meta.author = 'Yi Liu <vievie@gmail.com>'
+response.meta.description = 'Antibody Management for Flow Cytometry (FACS)'
+response.meta.keywords = 'Antibody, Management, Flow Cytometry, FACS'
 response.meta.generator = 'Web2py Web Framework'
 
 ## your http://google.com/analytics id
@@ -28,7 +28,7 @@ response.menu = [
     (T('Home'), False, URL('default', 'index'), [])
 ]
 
-DEVELOPMENT_MENU = True
+DEVELOPMENT_MENU = False
 
 #########################################################################
 ## provide shortcuts for development. remove in production

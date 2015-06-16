@@ -17,7 +17,7 @@ myconf = AppConfig(reload=True)
 
 if not request.env.web2py_runtime_gae:
     ## if NOT running on Google App Engine use SQLite or other DB
-    db = DAL(myconf.take('db.uri'), pool_size=myconf.take('db.pool_size', cast=int), check_reserved=['all'])
+    db = DAL('sqlite://storage.sqlite',pool_size=1,check_reserved=['all'])
 else:
     ## connect to Google BigTable (optional 'google:datastore://namespace')
     db = DAL('google:datastore+ndb')
@@ -54,6 +54,14 @@ response.form_label_separator = myconf.take('forms.separator')
 from gluon.tools import Auth, Service, PluginManager
 
 auth = Auth(db)
+
+auth.settings.extra_fields['auth_user']= [
+  Field('piFirst'),
+  Field('piLast'),
+  Field('department'),
+  Field('institution'),
+  Field('zipcode')]
+
 service = Service()
 plugins = PluginManager()
 
@@ -87,6 +95,79 @@ auth.settings.reset_password_requires_verification = True
 ## >>> rows=db(db.mytable.myfield=='value').select(db.mytable.ALL)
 ## >>> for row in rows: print row.id, row.myfield
 #########################################################################
+
+# db.define_table('auth_criteria',
+#    Field('user_id', 'reference auth_user', readable=False, writable=False),
+#    Field('salePrice', 'integer', widget=SQLFORM.widgets.radio.widget, requires = IS_IN_SET(salePrice)),
+#    Field('tgPrice', 'integer', widget=SQLFORM.widgets.radio.widget, requires = IS_IN_SET(tgPrice)),
+#    Field('aveRev', 'integer', requires = IS_IN_SET(aveRev)),
+#    Field('percSave', 'integer', requires = IS_IN_SET(percSave)),
+#    Field('toSend','integer', readable=False, writable=False))
+# db.auth_criteria.user_id.requires = IS_IN_DB(db, db.auth_user.id)
+# db.auth_criteria.id.readable=False 
+
+storeTemp = {
+    0: '4C',
+    1: '-20C',
+    2: '-80C'
+}
+
+fl = {
+    1: 'FL1: FITC',
+    2: 'FL2: PE',
+    3: 'FL3: PE-Cy7',
+    4: 'FL4: APC',
+    5: 'FL5: PB/eF450',
+    6: 'FL6: AmCyan',
+    7: 'FL7: PerCP-Cy5.5',
+    8: 'FL8: APC-Cy7',
+    9: 'FL9: PE-TexasRed',
+    10: 'FL10: Alexa-700',
+    11: '',
+    12: '',
+    13: '',
+    14: '',
+}
+
+db.define_table('box',
+   Field('labId', 'reference auth_user', readable=False, writable=False),
+   Field('temprature', 'integer', widget=SQLFORM.widgets.radio.widget, requires = IS_IN_SET(storeTemp)),
+   Field('storeLoc','string')
+   )
+
+db.define_table('antibody',
+   Field('antigen', 'string'),
+   Field('fluorophore', 'string'),
+   Field('fl', 'integer', requires = IS_IN_SET(fl)),
+   Field('vendor','integer', requires = IS_IN_SET(fl)),
+   Field('catNo','string'),
+   Field('species','integer'),
+   Field('reaction','integer'),
+   Field('concentration','double'),
+   Field('recomDose','double'),
+   Field('pracDose','double')
+   )
+
+db.define_table('panel',
+   Field('labId', 'reference auth_user', readable=False, writable=False),
+   Field('description', 'string'),
+   Field('instrument', 'string'),
+   Field('dateDesign','date', writable=False),
+   Field('gateExample', 'blob', readable=False, writable=False),
+   Field('pubPriv', 'integer', readable=False, writable=False),
+   Field('panelRef', readable=False, writable=False))
+
+db.define_table('paAb',
+   Field('panelId', 'reference panel', readable=False, writable=False),
+   Field('abId', 'reference antibody', readable=False, writable=False)
+   )
+
+db.define_table('boAb',
+   Field('boxId', 'reference box', readable=False, writable=False),
+   Field('abId','reference antibody', readable=False, writable=False),
+   Field('orderDate','date'),
+   Field('orderPerson','string'),
+   Field('expireDate','date'))
 
 ## after defining tables, uncomment below to enable auditing
 # auth.enable_record_versioning(db)
